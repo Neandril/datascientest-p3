@@ -1,0 +1,40 @@
+version: '3.9'
+services:
+  neo4j:
+    image: rdallavalle/p3_neo4j:1.0.0
+    container_name: neo4j_for_eval
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      - NEO4JLABS_PLUGINS=\[\"apoc\"\]
+      - NEO4J_AUTH=neo4j/s3cr3t
+    volumes:
+      - data:/var/lib/neo4j/data
+      - logs:/var/lib/neo4j/logs
+      - plugins:/var/lib/plugins
+      - import:/var/lib/neo4j/import
+    networks:
+      - default
+  populatedb:
+    image: rdallavalle/p3_populatedb:1.0.0
+    container_name: populatedb
+    networks:
+      - default
+    depends_on:
+      - neo4j
+  api:
+    image: rdallavalle/p3_mcu_api:1.0.0
+    container_name: mcu_api
+    networks:
+      - default
+    depends_on:
+      - populatedb
+volumes:
+  data:
+  logs:
+  plugins:
+  import:
+networks:
+  network:
+    driver: bridge
